@@ -11,7 +11,7 @@ RUN python3 -m venv /opt/myapp
 ENV PATH="/opt/myapp/bin:$PATH"
 
 # Копирование requirements.txt в контейнер
-COPY requirements.txt.
+COPY requirements.txt .
 
 # Установка зависимостей из requirements.txt в виртуальном окружении
 RUN pip install --no-cache-dir -r requirements.txt
