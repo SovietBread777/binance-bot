@@ -1,22 +1,25 @@
-# Выберите базовый образ
-FROM debian
+FROM postgres:latest
 
-# Обновление списка пакетов и установка необходимых инструментов
+# Установка Python
 RUN apt-get update && \
-    apt-get install -y software-properties-common python3 python3-pip python3-dev build-essential libpq-dev && \
+    apt-get install -y python3 python3-pip && \
     rm -rf /var/lib/apt/lists/*
 
-# Создание виртуального окружения и активация
-RUN python3 -m venv /opt/myapp
-ENV PATH="/opt/myapp/bin:$PATH"
+# Копирование скриптов и файла requirements.txt
+COPY. /app
 
-# Копирование requirements.txt в контейнер
-COPY requirements.txt .
+# Переход в директорию /app
+WORKDIR /app
 
-# Установка зависимостей из requirements.txt в виртуальном окружении
-RUN pip install --no-cache-dir -r requirements.txt
+# Установка зависимостей Python
+RUN pip3 install --no-cache-dir -r requirements.txt
 
-# Копирование остальных файлов приложения
-COPY . .
+# Создание пользователя и базы данных
+RUN createuser --interactive --pwprompt --username=postgres && \
+    createdb --owner=postgres db
 
-CMD ["python3 parser.py & python3 main.py"]
+# Экспозиция порта PostgreSQL
+EXPOSE 5432
+
+# Запуск скриптов
+CMD ["sh", "-c", "psql -U postgres db < setup.sql && python3 parser.py & python3 main.py"]
