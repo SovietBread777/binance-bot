@@ -2,7 +2,7 @@ FROM ubuntu:latest
 
 ENV POSTGRES_USER=username POSTGRES_PASSWORD=changeme POSTGRES_DB=db
 
-COPY..
+COPY . .
 
 RUN apt-get update && \
     apt-get install -y software-properties-common wget lsb-release gnupg && \
