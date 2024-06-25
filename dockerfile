@@ -10,7 +10,7 @@ WORKDIR /app
 
 RUN pip3 install --no-cache-dir --break-system-packages -r requirements.txt
 
-RUN createuser --interactive --pwprompt --yes --username=postgres && \
+RUN createuser --interactive --username=postgres && \
     createdb --owner=postgres db
 
 EXPOSE 5432
