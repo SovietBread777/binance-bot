@@ -11,7 +11,7 @@ WORKDIR /app
 RUN pip3 install --no-cache-dir --break-system-packages -r requirements.txt
 
 ENV PGPASSWORD changeme
-RUN createuser --interactive --username=username && \
+RUN createuser --interactive --username=username -y && \
     createdb db
 
 EXPOSE 5432
