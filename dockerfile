@@ -1,26 +1,22 @@
-# Шаг 1: Выбор базового образа
+# Выберите базовый образ
 FROM debian
 
 # Обновление списка пакетов и установка необходимых инструментов
 RUN apt-get update && \
-    apt-get install -y postgresql postgresql-contrib python3 python3-pip && \
+    apt-get install -y software-properties-common python3 python3-pip python3-dev build-essential libpq-dev && \
     rm -rf /var/lib/apt/lists/*
 
-# Шаг 2: Настройка PostgreSQL
-# Создаем директорию для хранения данных PostgreSQL
-RUN mkdir /var/lib/postgresql/data
+# Создание виртуального окружения и активация
+RUN python3 -m venv /opt/myapp
+ENV PATH="/opt/myapp/bin:$PATH"
 
-RUN service postgresql start && \
-    su - postgres -c "PGHOST=/var/run/postgresql psql -c \"CREATE DATABASE db;\"" && \
-    su - postgres -c "PGHOST=/var/run/postgresql psql -c \"CREATE USER username WITH PASSWORD 'changeme';\"" && \
-    su - postgres -c "PGHOST=/var/run/postgresql psql -c \"GRANT ALL PRIVILEGES ON DATABASE db TO username;\""
+# Копирование requirements.txt в контейнер
+COPY requirements.txt.
 
-# Шаг 3: Установка Python и зависимостей
-COPY requirements.txt ./
-RUN pip3 install --no-cache-dir -r requirements.txt
+# Установка зависимостей из requirements.txt в виртуальном окружении
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Копирование остальных файлов приложения
 COPY . .
 
-# Запуск приложения (замените CMD на команду запуска вашего приложения)
-CMD ["python3", "your_app.py"]
+CMD ["python3 parser.py & python3 main.py"]
