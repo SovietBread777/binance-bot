@@ -11,11 +11,9 @@ RUN apt-get update && \
 RUN mkdir /var/lib/postgresql/data
 
 RUN service postgresql start && \
-    PGPASSWORD='changeme' psql -U postgres -c "ALTER ROLE postgres WITH LOGIN TRUSTED;" && \
-    PGPASSWORD='changeme' psql -U postgres -c "CREATE DATABASE db;" && \
-    PGPASSWORD='changeme' psql -U postgres -c "CREATE USER username WITH PASSWORD 'changeme';" && \
-    PGPASSWORD='changeme' psql -U postgres -c "GRANT ALL PRIVILEGES ON DATABASE db TO username;"
-
+    su - postgres -c "PGHOST=/var/run/postgresql psql -c \"CREATE DATABASE db;\"" && \
+    su - postgres -c "PGHOST=/var/run/postgresql psql -c \"CREATE USER username WITH PASSWORD 'changeme';\"" && \
+    su - postgres -c "PGHOST=/var/run/postgresql psql -c \"GRANT ALL PRIVILEGES ON DATABASE db TO username;\""
 
 # Шаг 3: Установка Python и зависимостей
 COPY requirements.txt ./
