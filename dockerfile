@@ -14,4 +14,7 @@ ENV POSTGRES_DB=db
 
 EXPOSE 5432
 
+RUN useradd -m -U postgres
+USER postgres
+
 CMD ["sh", "-c", "postgres -c 'logging_collector=on' && python3 parser.py & python3 main.py"]
