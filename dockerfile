@@ -4,16 +4,16 @@ RUN apt-get update && \
     apt-get install -y python3 python3-pip && \
     rm -rf /var/lib/apt/lists/*
 
-COPY . /app
+COPY. /app
 
 WORKDIR /app
 
 RUN pip3 install --no-cache-dir --break-system-packages -r requirements.txt
 
-ENV PGPASSWORD changeme
-RUN createuser --interactive --username=username --pwprompt=no && \
-    createdb db
+ENV POSTGRES_USER=username
+ENV POSTGRES_PASSWORD=changeme
+ENV POSTGRES_DB=db
 
 EXPOSE 5432
 
-CMD ["sh", "-c", "psql -U postgres db < setup.sql && python3 parser.py & python3 main.py"]
+CMD ["sh", "-c", "postgres -c 'logging_collector=on' && python3 parser.py & python3 main.py"]
