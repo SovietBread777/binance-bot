@@ -1,24 +1,23 @@
 import requests
 from bs4 import BeautifulSoup
 import psycopg2
-from dotenv import load_dotenv
-import os
+from dotenv import load_dotenv, dotenv_values
 import time
 
-load_dotenv()
+env_config = dotenv_values(".env")
 
 def connect_to_db():
     conn = None
     try:
         conn = psycopg2.connect(
-            host=os.getenv("DATABASE_HOST"),
-            database=os.getenv("DATABASE_NAME"),
-            user=os.getenv("DATABASE_USER"),
-            password=os.getenv("DATABASE_PASSWORD")
+            host=env_config["DATABASE_HOST"],
+            database=env_config["DATABASE_NAME"],
+            user=env_config["DATABASE_USER"],
+            password=env_config["DATABASE_PASSWORD"]
         )
-        print("Connection to PostgreSQL DB successful")
     except Exception as e:
         print(f"Cannot connect to PostgreSQL DB: {e}")
+        raise Exception("Failed to connect to the database")
     return conn
 
 def create_table(conn):
@@ -35,14 +34,12 @@ def clear_table(conn):
     cur = conn.cursor()
     cur.execute("DELETE FROM crypto_prices;")
     conn.commit()
-    print("Table cleared successfully.")
 
 def insert_data(conn, data):
     cur = conn.cursor()
     for row in data:
         cur.execute("INSERT INTO crypto_prices (name, price) VALUES (%s, %s)", row)
     conn.commit()
-    print(f"Successfully inserted {cur.rowcount} rows.")
 
 def main():
     while True:

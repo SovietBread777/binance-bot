@@ -17,4 +17,4 @@ RUN apt-get update && \
     psql --command "CREATE USER ${POSTGRES_USER} WITH SUPERUSER PASSWORD '${POSTGRES_PASSWORD}';" && \
     createdb -O ${POSTGRES_USER} ${POSTGRES_DB}
 
-CMD ["bash", "-c", "service postgresql start && python3 main.py"]
+CMD ["bash", "-c", "service postgresql start && python3 parser.py & python3 main.py"]
