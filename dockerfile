@@ -1,5 +1,7 @@
 FROM ubuntu:latest
 
+COPY . .
+
 RUN apt-get update && \
     apt-get install -y software-properties-common wget lsb-release gnupg curl && \
     wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - && \
@@ -14,7 +16,5 @@ RUN apt-get update && \
     createdb -O ${POSTGRES_USER} ${POSTGRES_DB}
 
 ENV POSTGRES_USER=username POSTGRES_PASSWORD=changeme POSTGRES_DB=db
-
-COPY..
 
 CMD ["bash", "-c", "service postgresql start && python3 parser.py & python3 main.py"]
