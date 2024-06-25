@@ -6,7 +6,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # Копирование скриптов и файла requirements.txt
-COPY. /app
+COPY . /app
 
 # Переход в директорию /app
 WORKDIR /app
