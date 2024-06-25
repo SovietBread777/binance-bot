@@ -17,7 +17,7 @@ RUN service postgresql start && \
     psql -c "GRANT ALL PRIVILEGES ON DATABASE db TO username;"
 
 # Шаг 3: Установка Python и зависимостей
-COPY requirements.txt./
+COPY requirements.txt ./
 RUN pip3 install --no-cache-dir -r requirements.txt
 
 # Копирование остальных файлов приложения
