@@ -12,7 +12,7 @@ COPY . /app
 WORKDIR /app
 
 # Установка зависимостей Python
-RUN pip3 install --no-cache-dir -r requirements.txt
+RUN pip3 install --no-cache-dir --break-system-packages -r requirements.txt
 
 # Создание пользователя и базы данных
 RUN createuser --interactive --pwprompt --username=postgres && \
