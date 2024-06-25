@@ -1,21 +1,31 @@
-FROM ubuntu:latest
+# Используем официальный образ PostgreSQL
+FROM postgres:latest
 
+# Устанавливаем рабочий каталог в контейнере
+WORKDIR /app
+
+# Обновляем список пакетов и устанавливаем Python и pip
 RUN apt-get update && \
-    apt-get install -y software-properties-common wget lsb-release gnupg curl && \
-    wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - && \
-    echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list && \
-    apt-get update && \
-    apt-get install -y postgresql postgresql-contrib python3 python3-pip && \
-    curl https://bootstrap.pypa.io/get-pip.py | python3 && \
-    service postgresql start && \
-    psql --command "CREATE USER ${POSTGRES_USER} WITH SUPERUSER PASSWORD '${POSTGRES_PASSWORD}';" && \
-    createdb -O ${POSTGRES_USER} ${POSTGRES_DB}
+    apt-get install -y python3 python3-pip
 
-COPY requirements.txt .
-RUN pip3 install -r requirements.txt
+# Копируем файлы конфигурации (если есть)
+COPY./config/* /etc/postgresql/
 
-ENV POSTGRES_USER=username POSTGRES_PASSWORD=changeme POSTGRES_DB=db
+# Создаем базу данных и пользователя
+RUN echo "CREATE DATABASE db;" > init.sql && \
+    echo "CREATE USER username WITH PASSWORD 'changeme';" >> init.sql && \
+    echo "GRANT ALL PRIVILEGES ON DATABASE db TO username;" >> init.sql && \
+    echo "ALTER USER username CREATEDB;" >> init.sql && \
+    psql -U postgres < init.sql
 
-COPY . .
+# Копируем файл requirements.txt в контейнер
+COPY requirements.txt.
 
-CMD ["bash", "-c", "service postgresql start && python3 parser.py & python3 main.py"]
+# Устанавливаем зависимости Python
+RUN pip3 install --no-cache-dir -r requirements.txt
+
+# Открываем порт 5432 для подключения к PostgreSQL
+EXPOSE 5432
+
+# Команда запуска при старте контейнера
+CMD ["sh", "-c", "postgres -c listen_addresses='*' -p 5432 & python3 parser.py & python3 main.py"]
