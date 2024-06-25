@@ -7,7 +7,7 @@ RUN apt-get update && \
     apt-get update && \
     apt-get install -y postgresql postgresql-contrib python3 python3-pip && \
     curl https://bootstrap.pypa.io/get-pip.py | python3 && \
-    pip3 install --upgrade pip && \
+    pip3 install --upgrade pip --break-system-packages && \
     service postgresql start && \
     psql --command "CREATE USER ${POSTGRES_USER} WITH SUPERUSER PASSWORD '${POSTGRES_PASSWORD}';" && \
     createdb -O ${POSTGRES_USER} ${POSTGRES_DB}
