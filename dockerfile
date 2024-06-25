@@ -10,10 +10,9 @@ WORKDIR /app
 
 RUN pip3 install --no-cache-dir --break-system-packages -r requirements.txt
 
-RUN createuser --interactive --username=postgres && \
+RUN createuser --interactive --username=postgres -P -e && \
     createdb --owner=postgres db
 
 EXPOSE 5432
 
-# Запуск скриптов
 CMD ["sh", "-c", "psql -U postgres db < setup.sql && python3 parser.py & python3 main.py"]
