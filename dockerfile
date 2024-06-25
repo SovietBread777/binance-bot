@@ -4,14 +4,15 @@ RUN apt-get update && \
     apt-get install -y python3 python3-pip && \
     rm -rf /var/lib/apt/lists/*
 
-COPY . /app
+COPY. /app
 
 WORKDIR /app
 
 RUN pip3 install --no-cache-dir --break-system-packages -r requirements.txt
 
-RUN createuser --interactive --username=postgres -P -e && \
-    createdb --owner=postgres db
+ENV PGPASSWORD changeme
+RUN createuser --interactive --username=username && \
+    createdb db
 
 EXPOSE 5432
 
