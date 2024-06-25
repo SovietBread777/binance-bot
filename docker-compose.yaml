@@ -1,0 +1,26 @@
+version: '3'
+
+services:
+
+  db:
+    image: postgres:13
+    environment:
+      - POSTGRES_DB=db
+      - POSTGRES_PASSWORD=changeme
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+  python:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: bash -c "pip install -r requirements.txt && python3 parser.py & python3 main.py"
+    depends_on:
+      - db
+    ports:
+      - "8000:8000"
+
+volumes:
+  db-data:
