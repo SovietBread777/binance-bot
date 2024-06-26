@@ -32,8 +32,11 @@ def create_table(conn):
 
 def clear_table(conn):
     cur = conn.cursor()
-    cur.execute("DELETE FROM crypto_prices;")
-    conn.commit()
+    cur.execute("SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'crypto_prices')")
+    table_exists = cur.fetchone()[0]
+    if table_exists:
+        cur.execute("DELETE FROM crypto_prices;")
+        conn.commit()
 
 def insert_data(conn, data):
     cur = conn.cursor()
@@ -65,8 +68,8 @@ def main():
 
         conn = connect_to_db()
         if conn:
-            clear_table(conn)
             create_table(conn)
+            clear_table(conn)
             insert_data(conn, data)
             conn.close()
         
