@@ -2,6 +2,7 @@ from dotenv import load_dotenv, dotenv_values
 import psycopg2
 import telebot
 from telebot.types import ReplyKeyboardMarkup, KeyboardButton
+import time
 
 env_config = dotenv_values(".env")
 
@@ -18,6 +19,22 @@ def connect_to_db():
         print(f"Cannot connect to PostgreSQL DB: {e}")
         raise Exception("Failed to connect to the database")
     return conn
+
+def get_crypto_prices(chat_id, db_conn):
+    cursor = db_conn.cursor()
+    
+    cursor.execute("SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'crypto_prices')")
+    table_exists = cursor.fetchone()[0]
+    
+    if table_exists:
+        cursor.execute("SELECT name, price FROM crypto_prices ORDER BY price DESC LIMIT 10;")
+        prices_data = cursor.fetchall()
+        
+        prices_str = "\n".join([f"{row[0]}: {row[1]}" for row in prices_data])
+        bot.send_message(chat_id, prices_str)
+    else:
+        time.sleep(10)
+        get_crypto_prices(chat_id, db_conn)
 
 if __name__ == "__main__":
     try:
@@ -37,16 +54,10 @@ if __name__ == "__main__":
             
             bot.send_message(chat_id, welcome_message, reply_markup=keyboard)
         
-        @bot.message_handler(func=lambda message: True)
-        def get_crypto_prices(message):
+        @bot.message_handler(func=lambda message: message.text == "Курс Binance")
+        def handle_crypto_prices(message):
             chat_id = message.chat.id
-            
-            cursor = db_conn.cursor()
-            cursor.execute("SELECT name, price FROM crypto_prices ORDER BY price DESC LIMIT 10;")
-            prices_data = cursor.fetchall()
-            
-            prices_str = "\n".join([f"{row[0]}: {row[1]}" for row in prices_data])
-            bot.send_message(chat_id, prices_str)
+            get_crypto_prices(chat_id, db_conn)
         
         bot.polling(none_stop=True)
     except Exception as e:
