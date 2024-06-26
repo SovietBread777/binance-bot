@@ -11,6 +11,8 @@ services:
       - "5432:5432"
     volumes:
       - db-data:/var/lib/postgresql/data
+    networks:
+      - app-network
 
   python:
     build:
@@ -21,6 +23,12 @@ services:
       - db
     ports:
       - "8000:8000"
+    networks:
+      - app-network
 
 volumes:
   db-data:
+
+networks:
+  app-network:
+    driver: bridge
